@@ -29,15 +29,15 @@ CAtaAdapter::~CAtaAdapter()
 }
 
 // 8-bit read
-BYTE CAtaAdapter::In(WORD wPort_)
+uint8_t CAtaAdapter::In(uint16_t wPort_)
 {
     return InWord(wPort_) & 0xff;
 }
 
 // 16-bit read
-WORD CAtaAdapter::InWord(WORD wPort_)
+uint16_t CAtaAdapter::InWord(uint16_t wPort_)
 {
-    WORD wRet = 0x0000;
+    uint16_t wRet = 0x0000;
 
     if (m_pDisk0) wRet |= m_pDisk0->In(wPort_);
     if (m_pDisk1) wRet |= m_pDisk1->In(wPort_);
@@ -47,7 +47,7 @@ WORD CAtaAdapter::InWord(WORD wPort_)
 }
 
 // 8-bit write (16-bit handled by derived class)
-void CAtaAdapter::Out(WORD wPort_, BYTE bVal_)
+void CAtaAdapter::Out(uint16_t wPort_, uint8_t bVal_)
 {
     if (m_pDisk0) m_pDisk0->Out(wPort_, bVal_);
     if (m_pDisk1) m_pDisk1->Out(wPort_, bVal_);
