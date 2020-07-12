@@ -47,6 +47,7 @@
 #include "SAMDOS.h"
 #include "SAMVox.h"
 #include "SDIDE.h"
+#include "Serial.h"
 #include "SID.h"
 #include "Sound.h"
 #include "Tape.h"
@@ -71,6 +72,8 @@ CPaulaDevice* pPaula;
 CDAC* pDAC;
 CSAA* pSAA;
 CSID* pSID;
+
+CSerialComms* pComms;
 
 
 // Port read/write addresses for I/O breakpoints
@@ -161,6 +164,9 @@ bool Init(bool fFirstInit_/*=false*/)
 
         pSDIDE = new CSDIDEDevice;
 
+        pComms = new CSerialComms;
+        pComms->Open(GetOption(serialdev1));
+
         pFloppy1->LoadState(OSD::MakeFilePath(MFP_SETTINGS, "drive1"));
         pFloppy2->LoadState(OSD::MakeFilePath(MFP_SETTINGS, "drive2"));
         pDallas->LoadState(OSD::MakeFilePath(MFP_SETTINGS, "dallas"));
@@ -228,6 +234,8 @@ void Exit(bool fReInit_/*=false*/)
         SetOption(tape, Tape::GetPath());
         Tape::Eject();
 
+        pComms->Close();
+
         delete pMidi; pMidi = nullptr;
         delete pPaula; pPaula = nullptr;
         delete pSAMVox; pSAMVox = nullptr;
@@ -252,6 +260,8 @@ void Exit(bool fReInit_/*=false*/)
         delete pAtom; pAtom = nullptr;
         delete pAtomLite; pAtomLite = nullptr;
         delete pSDIDE; pSDIDE = nullptr;
+
+        delete pComms; pComms = nullptr;
     }
 }
 
@@ -559,6 +569,8 @@ BYTE In(WORD wPort_)
 
     // Serial ports (currently unsupported)
     case SERIAL1:
+        bRet = pComms->In(wPort_);
+        break;
     case SERIAL2:
         break;
 
@@ -837,6 +849,8 @@ void Out(WORD wPort_, BYTE bVal_)
 
         // Serial ports 1 and 2 (currently unsupported)
     case SERIAL1:
+        pComms->Out(wPort_, bVal_);
+        break;
     case SERIAL2:
         break;
 
